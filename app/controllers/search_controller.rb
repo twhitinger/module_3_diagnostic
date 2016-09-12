@@ -2,26 +2,20 @@ class SearchController < ApplicationController
   attr_reader :connection
 
   def initialize
-    @connection = Faraday.new('https://developer.nrel.gov/api/alt-fuel-stations') do |faraday|
-
-      # https://developer.nrel.gov/api/alt-fuel-stations/v1.json?fuel_type=E85,ELEC&state=CA&limit=2&api_key=5z1u69iK3FNXR9hTXRnF1XsUL9CQxkvvBFkjafcP&format=JSON
+    @connection = Faraday.new('https://developer.nrel.gov/api/alt-fuel-stations/v1.json?fuel_type=E85,ELEC&zip=80203&radius=6&api_key=5z1u69iK3FNXR9hTXRnF1XsUL9CQxkvvBFkjafcP&format=JSON') do |faraday|
       faraday.request :url_encoded
       faraday.response :logger
       faraday.adapter Faraday.default_adapter
-      faraday.params['api_key'] = ENV["api_key"]
+      # faraday.params['api_key'] = ENV["api_key"]
     end
   end
 
   def index
-    response = connection.get("/v1.json?fuel_type=E85,ELEC&zip=80203&format=JSON")
-
-    # https://developer.nrel.gov/api/alt-fuel-stations/v1.json/fuel_type=E85,ELEC&zip=80203&api_key=5z1u69iK3FNXR9hTXRnF1XsUL9CQxkvvBFkjafcP
-    binding.pry
-    JSON.parse(response.body, symbolize_names: true)
+    response = connection.get
+    @stations = JSON.parse(response.body, symbolize_names: true, object_class: OpenStruct)
     # @connection = Faraday.new('https://developer.nrel.gov/api/alt-fuel-stations/v1.json'
     # connection.get("/fuel_type=E85,ELEC&radius=", params['q'])
-    binding.pry
-    @stations
+  
     # https://developer.nrel.gov/api/alt-fuel-stations/v1.json?
     #
     # fuel_type=E85,ELEC&zip=80203&limit=10&radius=6&api_key=5z1u69iK3FNXR9hTXRnF1XsUL9CQxkvvBFkjafcP&format=JSON
